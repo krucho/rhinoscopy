@@ -8,6 +8,7 @@
   <title>Evento 2026</title>
   <link rel="manifest" href="./manifest.json">
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="./app.css">
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   <style>
     :root {
@@ -485,6 +486,22 @@
         </div>
       </section>
 
+      <section class="home-actions" aria-label="Explorar el evento">
+        <a class="home-action home-action--wide" href="./programa.html">
+          <span class="home-action__number">01</span>
+          <span><strong>Programa científico</strong><small>Horarios, salas y actividades</small></span>
+          <span class="home-action__arrow" aria-hidden="true">→</span>
+        </a>
+        <a class="home-action" href="./speakers.html">
+          <span class="home-action__number">02</span>
+          <span><strong>Speakers</strong><small>Conocé a los invitados</small></span>
+        </a>
+        <a class="home-action" href="./mas.html">
+          <span class="home-action__number">03</span>
+          <span><strong>Más información</strong><small>Sede, sponsors y contacto</small></span>
+        </a>
+      </section>
+
       <p class="phase-note">Primera etapa · Instalación y notificaciones de prueba</p>
     </section>
 
@@ -492,6 +509,13 @@
       <summary>Debug del dispositivo</summary>
       <div id="debugContent" class="debug-content">Cargando…</div>
     </details>
+
+    <nav id="appNav" class="app-nav" aria-label="Navegación principal" hidden>
+      <a class="app-nav__item is-active" href="./index.html" aria-current="page"><span class="app-nav__icon" aria-hidden="true">⌂</span><span>Inicio</span></a>
+      <a class="app-nav__item" href="./programa.html"><span class="app-nav__icon" aria-hidden="true">▤</span><span>Programa</span></a>
+      <a class="app-nav__item" href="./speakers.html"><span class="app-nav__icon" aria-hidden="true">◎</span><span>Speakers</span></a>
+      <a class="app-nav__item" href="./mas.html"><span class="app-nav__icon" aria-hidden="true">•••</span><span>Más</span></a>
+    </nav>
   </main>
 
   <dialog id="installDialog" aria-labelledby="installDialogTitle">
@@ -563,6 +587,8 @@
       const standalone = isRunningStandalone();
       ui.browserView.hidden = standalone;
       ui.installedView.hidden = !standalone;
+      document.querySelector("#appNav").hidden = !standalone;
+      document.body.classList.toggle("has-app-nav", standalone);
       log("PWA", standalone ? "Ejecutando en modo standalone" : "Ejecutando en navegador");
       if (standalone) initializeOneSignal();
       updateDebugPanel();
@@ -703,6 +729,10 @@
           });
           state.oneSignal = OneSignal;
           state.oneSignalInitialized = true;
+
+          // Evita que los pushes sin Launch URL explícita abran la raíz del
+          // dominio de GitHub Pages en lugar de este sitio de proyecto.
+          OneSignal.Notifications.setDefaultUrl(new URL(".", location.href).href);
 
           OneSignal.Notifications.addEventListener("permissionChange", permission => {
             log("PUSH", "Cambio de permiso", permission);

@@ -1,14 +1,22 @@
 # Evento 2026 — PWA + OneSignal
 
-Primera etapa del MVP: instalación como PWA, detección de modo `standalone`, activación manual de Web Push mediante OneSignal y diagnóstico con `?debug=1`.
+MVP en evolución: instalación como PWA, Web Push mediante OneSignal, diagnóstico con `?debug=1` y un prototipo navegable de las secciones principales del evento.
 
-La agenda, los deep links y la encuesta se implementarán después de comprobar un push real en Android y iPhone.
+La instalación y Web Push ya fueron validados en Android y iPhone. El contenido actual de Programa, Speakers, Sponsors, Sede y Contacto es ficticio y sirve para probar navegación e interacción general.
 
 ## Archivos principales
 
 ```text
 /
 ├── index.html
+├── programa.html
+├── speakers.html
+├── mas.html
+├── info.html
+├── sponsors.html
+├── contacto.html
+├── app.css
+├── app.js
 ├── manifest.json
 ├── pwa-sw.js
 ├── push/
@@ -88,6 +96,25 @@ Si el repositorio se llama `krucho.github.io`, la aplicación se publica directa
    `f72f0f39-bdfb-4252-a101-9b6f40acf7a4`.
 
 La ubicación y el alcance del worker se informan desde `OneSignal.init()` de forma dinámica. No es necesario acoplarlos manualmente a `/` o al nombre del repositorio.
+
+La aplicación también establece su propia URL base como destino predeterminado
+de las notificaciones. Para agenda y encuestas, cada mensaje deberá incluir una
+Launch URL explícita con el deep link correspondiente.
+
+## Prototipo de navegación
+
+Las páginas internas comparten una navegación inferior y utilizan transiciones
+entre documentos cuando el navegador las soporta. En navegadores sin soporte,
+la navegación conserva el funcionamiento normal sin depender de la animación.
+
+Deep link de prueba del programa:
+
+```text
+https://krucho.github.io/rhinoscopy/programa.html#talk-3
+```
+
+La URL desplaza la vista hasta la actividad y la resalta temporalmente. El
+contenido es ficticio y puede reemplazarse luego sin cambiar la interacción.
 
 ## 4. Primera prueba end-to-end
 
