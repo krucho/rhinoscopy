@@ -8,7 +8,7 @@
   <title>Evento 2026</title>
   <link rel="manifest" href="./manifest.json">
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
-  <link rel="stylesheet" href="./app.css">
+  <link rel="stylesheet" href="./app.css?v=5">
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   <style>
     :root {
@@ -624,10 +624,6 @@
     const isAndroid = () => /Android/i.test(navigator.userAgent);
     const nativeInteractionExceptions = "input, textarea, [contenteditable='true'], [data-selectable], a[href^='tel:'], a[href^='mailto:']";
 
-    function usesTouchInteraction() {
-      return window.matchMedia("(pointer: coarse)").matches || isRunningStandalone();
-    }
-
     function getBasePath() {
       return new URL(".", location.href).pathname;
     }
@@ -946,14 +942,13 @@
       if (event.target === ui.installDialog) ui.installDialog.close();
     });
 
-    document.addEventListener("contextmenu", event => {
-      if (!usesTouchInteraction() || !(event.target instanceof Element)) return;
-      if (!event.target.closest(nativeInteractionExceptions)) event.preventDefault();
-    });
+    const shouldKeepNativeInteraction = target => target instanceof Element
+      && Boolean(target.closest(nativeInteractionExceptions));
 
-    document.addEventListener("dragstart", event => {
-      if (!usesTouchInteraction() || !(event.target instanceof Element)) return;
-      if (!event.target.closest(nativeInteractionExceptions)) event.preventDefault();
+    ["contextmenu", "selectstart", "dragstart"].forEach(eventName => {
+      document.addEventListener(eventName, event => {
+        if (!shouldKeepNativeInteraction(event.target)) event.preventDefault();
+      }, { capture: true });
     });
 
     window.addEventListener("beforeinstallprompt", event => {

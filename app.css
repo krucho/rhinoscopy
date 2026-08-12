@@ -15,17 +15,19 @@
 
 html { background: var(--app-paper); }
 
-body {
-  -webkit-user-select: none;
-  user-select: none;
-  -webkit-touch-callout: none;
+html,
+body,
+body * {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
 }
 
 :is(input, textarea, [contenteditable="true"], [data-selectable], a[href^="tel:"], a[href^="mailto:"]),
 :is(input, textarea, [contenteditable="true"], [data-selectable], a[href^="tel:"], a[href^="mailto:"]) * {
-  -webkit-user-select: text;
-  user-select: text;
-  -webkit-touch-callout: default;
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: default !important;
 }
 
 a, button, [role="button"] {
@@ -34,8 +36,8 @@ a, button, [role="button"] {
 }
 
 a, img {
-  -webkit-user-drag: none;
-  user-drag: none;
+  -webkit-user-drag: none !important;
+  user-drag: none !important;
 }
 
 body.has-app-nav .app-shell { padding-bottom: calc(112px + var(--app-safe-bottom)); }

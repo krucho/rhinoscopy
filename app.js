@@ -1,17 +1,12 @@
 (() => {
   const nativeInteractionExceptions = "input, textarea, [contenteditable='true'], [data-selectable], a[href^='tel:'], a[href^='mailto:']";
-  const usesTouchInteraction = () => matchMedia("(pointer: coarse)").matches
-    || matchMedia("(display-mode: standalone)").matches
-    || navigator.standalone === true;
+  const shouldKeepNativeInteraction = target => target instanceof Element
+    && Boolean(target.closest(nativeInteractionExceptions));
 
-  document.addEventListener("contextmenu", event => {
-    if (!usesTouchInteraction() || !(event.target instanceof Element)) return;
-    if (!event.target.closest(nativeInteractionExceptions)) event.preventDefault();
-  });
-
-  document.addEventListener("dragstart", event => {
-    if (!usesTouchInteraction() || !(event.target instanceof Element)) return;
-    if (!event.target.closest(nativeInteractionExceptions)) event.preventDefault();
+  ["contextmenu", "selectstart", "dragstart"].forEach(eventName => {
+    document.addEventListener(eventName, event => {
+      if (!shouldKeepNativeInteraction(event.target)) event.preventDefault();
+    }, { capture: true });
   });
 
   const current = document.body.dataset.page;

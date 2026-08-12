@@ -1,10 +1,10 @@
-const CACHE_NAME = "evento-pwa-v4";
+const CACHE_NAME = "evento-pwa-v5";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./manifest.json",
-  "./app.css",
-  "./app.js",
+  "./app.css?v=5",
+  "./app.js?v=5",
   "./programa.html",
   "./speakers.html",
   "./mas.html",
@@ -42,6 +42,19 @@ self.addEventListener("fetch", event => {
           return response;
         })
         .catch(() => caches.match(event.request).then(cached => cached || caches.match("./index.html")))
+    );
+    return;
+  }
+
+  if (["style", "script"].includes(event.request.destination)) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+          return response;
+        })
+        .catch(() => caches.match(event.request))
     );
     return;
   }
