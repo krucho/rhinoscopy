@@ -8,6 +8,13 @@
   "dir": "ltr",
   "start_url": "./",
   "scope": "./",
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://krucho.github.io/rhinoscopy/manifest.json",
+      "id": "https://krucho.github.io/rhinoscopy/"
+    }
+  ],
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#f4f0e8",

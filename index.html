@@ -189,6 +189,8 @@
       box-shadow: 0 13px 28px rgba(23, 33, 28, .19);
     }
 
+    .primary-button[hidden] { display: none; }
+
     .primary-button:hover { transform: translateY(-2px); box-shadow: 0 16px 32px rgba(23, 33, 28, .24); }
     .primary-button:active { transform: translateY(0); }
     .primary-button:disabled { cursor: not-allowed; opacity: .5; transform: none; box-shadow: none; }
@@ -203,6 +205,47 @@
       background: var(--card);
       font-size: 1.08rem;
       line-height: 1;
+    }
+
+    .installed-hint {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 14px;
+      align-items: center;
+      width: 100%;
+      padding: 17px;
+      border: 1px solid rgba(22, 79, 59, .22);
+      border-radius: 18px;
+      background: rgba(220, 235, 226, .72);
+      box-shadow: 0 14px 34px rgba(22, 79, 59, .09);
+    }
+
+    .installed-hint[hidden] { display: none; }
+
+    .installed-hint__icon {
+      display: grid;
+      width: 48px;
+      height: 48px;
+      place-items: center;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--green);
+      font-size: 1.25rem;
+      font-weight: 900;
+    }
+
+    .installed-hint strong {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--green);
+      font-size: .98rem;
+    }
+
+    .installed-hint p {
+      margin: 0;
+      color: var(--muted);
+      font-size: .84rem;
+      line-height: 1.4;
     }
 
     .benefits {
@@ -452,6 +495,13 @@
         <span>Instalar app</span>
         <span class="button-icon" aria-hidden="true">↓</span>
       </button>
+      <div id="installedHint" class="installed-hint" role="status" hidden>
+        <span class="installed-hint__icon" aria-hidden="true">✓</span>
+        <div>
+          <strong>La app ya está instalada</strong>
+          <p>Ya podés cerrar esta página y abrir Evento desde el ícono de tu pantalla de inicio.</p>
+        </div>
+      </div>
       <ul class="benefits" aria-label="Beneficios">
         <li><strong>01</strong>Alertas de agenda</li>
         <li><strong>02</strong>Encuestas breves</li>
@@ -507,7 +557,7 @@
 
     <details id="debugPanel" class="debug-panel" hidden>
       <summary>Debug del dispositivo</summary>
-      <div id="debugContent" class="debug-content">Cargando…</div>
+      <div id="debugContent" class="debug-content" data-selectable>Cargando…</div>
     </details>
 
     <nav id="appNav" class="app-nav" aria-label="Navegación principal" hidden>
@@ -538,6 +588,8 @@
       debug: new URLSearchParams(location.search).get("debug") === "1"
     });
 
+    const INSTALL_MEMORY_KEY = "evento-pwa-installed";
+
     const state = {
       deferredInstallPrompt: null,
       oneSignal: null,
@@ -551,6 +603,7 @@
       browserView: document.querySelector("#browserView"),
       installedView: document.querySelector("#installedView"),
       installButton: document.querySelector("#installButton"),
+      installedHint: document.querySelector("#installedHint"),
       installDialog: document.querySelector("#installDialog"),
       installDialogTitle: document.querySelector("#installDialogTitle"),
       installDialogIntro: document.querySelector("#installDialogIntro"),
@@ -569,6 +622,11 @@
     const warn = (scope, ...args) => console.warn(`[${scope}]`, ...args);
     const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
     const isAndroid = () => /Android/i.test(navigator.userAgent);
+    const nativeInteractionExceptions = "input, textarea, [contenteditable='true'], [data-selectable], a[href^='tel:'], a[href^='mailto:']";
+
+    function usesTouchInteraction() {
+      return window.matchMedia("(pointer: coarse)").matches || isRunningStandalone();
+    }
 
     function getBasePath() {
       return new URL(".", location.href).pathname;
@@ -583,6 +641,51 @@
       return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(APP_CONFIG.oneSignalAppId);
     }
 
+    function rememberInstallation(installed = true) {
+      try {
+        if (installed) localStorage.setItem(INSTALL_MEMORY_KEY, "1");
+        else localStorage.removeItem(INSTALL_MEMORY_KEY);
+      } catch {
+        // El almacenamiento puede estar bloqueado en navegación privada.
+      }
+    }
+
+    function wasInstallationRemembered() {
+      try {
+        return localStorage.getItem(INSTALL_MEMORY_KEY) === "1";
+      } catch {
+        return false;
+      }
+    }
+
+    function renderInstallationNotice(installed) {
+      if (isRunningStandalone()) return;
+      ui.installButton.hidden = installed;
+      ui.installedHint.hidden = !installed;
+    }
+
+    async function updateInstallationNotice() {
+      if (isRunningStandalone()) {
+        rememberInstallation();
+        return;
+      }
+
+      let installed = wasInstallationRemembered();
+      if ("getInstalledRelatedApps" in navigator) {
+        try {
+          const relatedApps = await navigator.getInstalledRelatedApps();
+          if (relatedApps.length > 0) {
+            installed = true;
+            rememberInstallation();
+          }
+        } catch (error) {
+          warn("INSTALL", "No se pudo consultar la instalación", error);
+        }
+      }
+
+      renderInstallationNotice(installed);
+    }
+
     function renderAppMode() {
       const standalone = isRunningStandalone();
       ui.browserView.hidden = standalone;
@@ -590,7 +693,10 @@
       document.querySelector("#appNav").hidden = !standalone;
       document.body.classList.toggle("has-app-nav", standalone);
       log("PWA", standalone ? "Ejecutando en modo standalone" : "Ejecutando en navegador");
-      if (standalone) initializeOneSignal();
+      if (standalone) {
+        rememberInstallation();
+        initializeOneSignal();
+      }
       updateDebugPanel();
     }
 
@@ -840,15 +946,29 @@
       if (event.target === ui.installDialog) ui.installDialog.close();
     });
 
+    document.addEventListener("contextmenu", event => {
+      if (!usesTouchInteraction() || !(event.target instanceof Element)) return;
+      if (!event.target.closest(nativeInteractionExceptions)) event.preventDefault();
+    });
+
+    document.addEventListener("dragstart", event => {
+      if (!usesTouchInteraction() || !(event.target instanceof Element)) return;
+      if (!event.target.closest(nativeInteractionExceptions)) event.preventDefault();
+    });
+
     window.addEventListener("beforeinstallprompt", event => {
       event.preventDefault();
       state.deferredInstallPrompt = event;
+      rememberInstallation(false);
+      renderInstallationNotice(false);
       log("INSTALL", "beforeinstallprompt disponible");
       updateDebugPanel();
     });
 
     window.addEventListener("appinstalled", () => {
       state.deferredInstallPrompt = null;
+      rememberInstallation();
+      renderInstallationNotice(true);
       log("INSTALL", "PWA instalada");
       showToast("Aplicación instalada. Abrila desde su icono.");
       updateDebugPanel();
@@ -858,11 +978,13 @@
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible") {
         renderAppMode();
+        updateInstallationNotice();
         refreshPushState();
       }
     });
 
     renderAppMode();
+    updateInstallationNotice();
     registerPwaServiceWorker();
     if (isRunningStandalone()) refreshPushState();
   </script>

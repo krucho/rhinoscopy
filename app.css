@@ -14,6 +14,30 @@
 }
 
 html { background: var(--app-paper); }
+
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+:is(input, textarea, [contenteditable="true"], [data-selectable], a[href^="tel:"], a[href^="mailto:"]),
+:is(input, textarea, [contenteditable="true"], [data-selectable], a[href^="tel:"], a[href^="mailto:"]) * {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+
+a, button, [role="button"] {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a, img {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
 body.has-app-nav .app-shell { padding-bottom: calc(112px + var(--app-safe-bottom)); }
 
 .app-nav {

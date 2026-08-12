@@ -116,6 +116,11 @@ https://krucho.github.io/rhinoscopy/programa.html#talk-3
 La URL desplaza la vista hasta la actividad y la resalta temporalmente. El
 contenido es ficticio y puede reemplazarse luego sin cambiar la interacción.
 
+La interfaz táctil evita selección accidental, menús contextuales y arrastre de
+elementos. Para permitir copiar un contenido específico, agregá el atributo
+`data-selectable`; los enlaces `tel:` y `mailto:` y los campos editables ya están
+exceptuados automáticamente.
+
 ## 4. Primera prueba end-to-end
 
 ### Android
