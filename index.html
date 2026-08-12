@@ -1,0 +1,840 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4f0e8">
+  <meta name="description" content="Alertas, agenda y encuestas del evento.">
+  <title>Evento 2026</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17211c;
+      --muted: #5f6963;
+      --paper: #f4f0e8;
+      --card: #fffdf8;
+      --accent: #df4d2f;
+      --accent-dark: #a82e1d;
+      --green: #164f3b;
+      --green-soft: #dcebe2;
+      --line: rgba(23, 33, 28, .14);
+      --shadow: 0 18px 50px rgba(27, 38, 31, .12);
+      --radius-lg: 30px;
+      --radius-md: 20px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { min-height: 100%; background: var(--paper); }
+
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 92% 7%, rgba(223, 77, 47, .16), transparent 31%),
+        radial-gradient(circle at 2% 88%, rgba(22, 79, 59, .13), transparent 32%),
+        var(--paper);
+      font-family: ui-rounded, "SF Pro Rounded", "Avenir Next", Avenir, system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, a { -webkit-tap-highlight-color: transparent; }
+
+    button {
+      font: inherit;
+    }
+
+    button:focus-visible, a:focus-visible, summary:focus-visible {
+      outline: 3px solid rgba(223, 77, 47, .45);
+      outline-offset: 4px;
+    }
+
+    .app-shell {
+      position: relative;
+      width: min(100%, 520px);
+      min-height: 100vh;
+      min-height: 100dvh;
+      margin: 0 auto;
+      padding: calc(22px + var(--safe-top)) 20px calc(24px + var(--safe-bottom));
+      overflow: hidden;
+    }
+
+    .app-shell::before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      top: 84px;
+      right: -76px;
+      width: 190px;
+      height: 190px;
+      border: 1px solid rgba(23, 33, 28, .11);
+      border-radius: 50%;
+      box-shadow: 0 0 0 28px rgba(23, 33, 28, .025), 0 0 0 56px rgba(23, 33, 28, .018);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 44px;
+      margin-bottom: clamp(36px, 9vh, 82px);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      font-size: .76rem;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .brand-mark {
+      position: relative;
+      width: 35px;
+      height: 35px;
+      border-radius: 50% 50% 44% 56%;
+      background: var(--green);
+      transform: rotate(-12deg);
+    }
+
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      width: 11px;
+      height: 11px;
+      top: 7px;
+      right: 6px;
+      border-radius: 50%;
+      background: var(--paper);
+    }
+
+    .edition {
+      padding: 7px 10px 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: .7rem;
+      font-weight: 750;
+      letter-spacing: .08em;
+    }
+
+    .view[hidden] { display: none !important; }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 14px;
+      color: var(--accent-dark);
+      font-size: .76rem;
+      font-weight: 850;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 26px;
+      height: 2px;
+      background: currentColor;
+    }
+
+    h1, h2, p { margin-top: 0; }
+
+    h1 {
+      max-width: 450px;
+      margin-bottom: 20px;
+      font-size: clamp(3rem, 14vw, 5.15rem);
+      line-height: .91;
+      letter-spacing: -.065em;
+      text-wrap: balance;
+    }
+
+    .intro {
+      max-width: 390px;
+      margin-bottom: 32px;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.55;
+    }
+
+    .primary-button, .secondary-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      min-height: 58px;
+      padding: 14px 20px;
+      border-radius: 17px;
+      cursor: pointer;
+      font-weight: 850;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .primary-button {
+      border: 0;
+      color: #fff;
+      background: var(--ink);
+      box-shadow: 0 13px 28px rgba(23, 33, 28, .19);
+    }
+
+    .primary-button:hover { transform: translateY(-2px); box-shadow: 0 16px 32px rgba(23, 33, 28, .24); }
+    .primary-button:active { transform: translateY(0); }
+    .primary-button:disabled { cursor: not-allowed; opacity: .5; transform: none; box-shadow: none; }
+
+    .button-icon {
+      display: grid;
+      width: 29px;
+      height: 29px;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--ink);
+      background: var(--card);
+      font-size: 1.08rem;
+      line-height: 1;
+    }
+
+    .benefits {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 28px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .benefits li {
+      min-width: 0;
+      padding: 15px 9px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      color: var(--muted);
+      background: rgba(255, 253, 248, .5);
+      font-size: .73rem;
+      font-weight: 750;
+      line-height: 1.25;
+      text-align: center;
+    }
+
+    .benefits strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--green);
+      font-size: 1rem;
+    }
+
+    .installed-header { margin-bottom: 28px; }
+
+    .installed-header h1 {
+      margin-bottom: 12px;
+      font-size: clamp(2.65rem, 12vw, 4.4rem);
+    }
+
+    .date-line {
+      color: var(--muted);
+      font-size: .92rem;
+      font-weight: 700;
+    }
+
+    .talk-card {
+      position: relative;
+      padding: 25px;
+      border: 1px solid rgba(255, 255, 255, .22);
+      border-radius: var(--radius-lg);
+      color: #fff;
+      background: var(--green);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .talk-card::after {
+      content: "";
+      position: absolute;
+      right: -42px;
+      bottom: -58px;
+      width: 160px;
+      height: 160px;
+      border: 22px solid rgba(255,255,255,.08);
+      border-radius: 48% 52% 45% 55%;
+      transform: rotate(24deg);
+    }
+
+    .talk-label {
+      margin-bottom: 36px;
+      color: rgba(255,255,255,.68);
+      font-size: .72rem;
+      font-weight: 850;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    .talk-time {
+      display: block;
+      margin-bottom: 5px;
+      color: #f4b29f;
+      font-size: 2.45rem;
+      font-weight: 850;
+      letter-spacing: -.04em;
+    }
+
+    .talk-title {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 7px;
+      font-size: 1.5rem;
+      line-height: 1.12;
+    }
+
+    .talk-room { margin: 0; color: rgba(255,255,255,.7); }
+
+    .notification-card {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 16px;
+      margin-top: 14px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--card);
+      box-shadow: 0 10px 30px rgba(27, 38, 31, .07);
+    }
+
+    .bell {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      border-radius: 15px;
+      color: var(--green);
+      background: var(--green-soft);
+      font-size: 1.25rem;
+    }
+
+    .notification-copy h2 { margin: 2px 0 6px; font-size: 1.05rem; }
+    .notification-copy p { margin-bottom: 15px; color: var(--muted); font-size: .87rem; line-height: 1.45; }
+
+    .status-line {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 15px;
+      font-size: .78rem;
+      font-weight: 800;
+    }
+
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #a4aaa6; }
+    .status-line[data-state="granted"] .status-dot { background: #21a069; box-shadow: 0 0 0 4px rgba(33,160,105,.12); }
+    .status-line[data-state="denied"] .status-dot,
+    .status-line[data-state="error"] .status-dot { background: var(--accent); }
+    .status-line[data-state="requesting"] .status-dot { background: #d6931f; animation: pulse 1s infinite alternate; }
+
+    .notification-action {
+      min-height: 44px;
+      padding: 10px 16px;
+      border: 0;
+      border-radius: 13px;
+      color: #fff;
+      background: var(--accent);
+      cursor: pointer;
+      font-weight: 850;
+    }
+
+    .notification-action:hover { background: var(--accent-dark); }
+    .notification-action:disabled { cursor: not-allowed; opacity: .48; }
+
+    .phase-note {
+      margin: 22px 2px 0;
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    dialog {
+      width: min(calc(100% - 28px), 470px);
+      margin: auto auto max(12px, var(--safe-bottom));
+      padding: 0;
+      border: 0;
+      border-radius: 28px;
+      color: var(--ink);
+      background: var(--card);
+      box-shadow: 0 25px 80px rgba(0,0,0,.3);
+    }
+
+    dialog::backdrop { background: rgba(10, 17, 13, .56); backdrop-filter: blur(5px); }
+
+    .modal-body { padding: 28px 24px calc(24px + var(--safe-bottom)); }
+    .modal-grabber { width: 42px; height: 5px; margin: -12px auto 24px; border-radius: 99px; background: var(--line); }
+    .modal-body h2 { margin-bottom: 9px; font-size: 1.55rem; letter-spacing: -.03em; }
+    .modal-body > p { color: var(--muted); line-height: 1.5; }
+
+    .install-steps { display: grid; gap: 12px; margin: 22px 0 26px; padding: 0; list-style: none; counter-reset: install; }
+    .install-steps li { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: center; line-height: 1.35; counter-increment: install; }
+    .install-steps li::before { content: counter(install); display: grid; width: 34px; height: 34px; place-items: center; border-radius: 50%; color: #fff; background: var(--green); font-size: .8rem; font-weight: 850; }
+
+    .secondary-button { border: 1px solid var(--line); color: var(--ink); background: transparent; }
+
+    .debug-panel {
+      margin-top: 26px;
+      border: 1px dashed rgba(23,33,28,.35);
+      border-radius: 16px;
+      background: rgba(255,255,255,.58);
+      font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+    }
+
+    .debug-panel summary { padding: 13px 15px; cursor: pointer; font-weight: 800; }
+    .debug-content { max-height: 48vh; padding: 0 15px 15px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.55; }
+
+    .toast {
+      position: fixed;
+      z-index: 10;
+      left: 50%;
+      bottom: calc(18px + var(--safe-bottom));
+      width: min(calc(100% - 36px), 440px);
+      padding: 13px 16px;
+      border-radius: 14px;
+      color: #fff;
+      background: var(--ink);
+      box-shadow: var(--shadow);
+      font-size: .86rem;
+      font-weight: 700;
+      text-align: center;
+      transform: translate(-50%, 18px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
+    }
+
+    .toast.is-visible { transform: translate(-50%, 0); opacity: 1; }
+
+    @keyframes pulse { to { opacity: .35; transform: scale(.8); } }
+    @keyframes enter { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+    .view:not([hidden]) > * { animation: enter .55s both cubic-bezier(.2,.7,.2,1); }
+    .view:not([hidden]) > *:nth-child(2) { animation-delay: .06s; }
+    .view:not([hidden]) > *:nth-child(3) { animation-delay: .12s; }
+    .view:not([hidden]) > *:nth-child(4) { animation-delay: .18s; }
+
+    @media (min-width: 680px) {
+      .app-shell { padding-inline: 0; }
+      dialog { margin-bottom: auto; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span id="brandName">Evento</span></div>
+      <span class="edition">2026</span>
+    </header>
+
+    <section id="browserView" class="view" aria-labelledby="welcomeTitle">
+      <p class="eyebrow">Tu evento, a tiempo</p>
+      <h1 id="welcomeTitle">No te pierdas lo que sigue.</h1>
+      <p class="intro">Instalá la experiencia del evento para recibir alertas antes de cada conferencia y participar de las encuestas.</p>
+      <button id="installButton" class="primary-button" type="button">
+        <span>Instalar app</span>
+        <span class="button-icon" aria-hidden="true">↓</span>
+      </button>
+      <ul class="benefits" aria-label="Beneficios">
+        <li><strong>01</strong>Alertas de agenda</li>
+        <li><strong>02</strong>Encuestas breves</li>
+        <li><strong>03</strong>Acceso rápido</li>
+      </ul>
+    </section>
+
+    <section id="installedView" class="view" aria-labelledby="homeTitle" hidden>
+      <header class="installed-header">
+        <p class="eyebrow">Todo listo</p>
+        <h1 id="homeTitle">Tu próxima conferencia.</h1>
+        <div class="date-line">Agenda de demostración · Hoy</div>
+      </header>
+
+      <article class="talk-card">
+        <div class="talk-label">Próxima conferencia</div>
+        <time class="talk-time" datetime="18:30">18:30</time>
+        <h2 class="talk-title">IA aplicada</h2>
+        <p class="talk-room">Sala Principal</p>
+      </article>
+
+      <section class="notification-card" aria-labelledby="notificationTitle">
+        <div class="bell" aria-hidden="true">♢</div>
+        <div class="notification-copy">
+          <h2 id="notificationTitle">Notificaciones</h2>
+          <div id="pushStatus" class="status-line" data-state="unknown" role="status" aria-live="polite">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span id="pushStatusLabel">Comprobando estado…</span>
+          </div>
+          <p id="pushHelp">Activá las alertas para enterarte antes de que comience cada charla.</p>
+          <button id="notificationButton" class="notification-action" type="button" disabled>Activar notificaciones</button>
+        </div>
+      </section>
+
+      <p class="phase-note">Primera etapa · Instalación y notificaciones de prueba</p>
+    </section>
+
+    <details id="debugPanel" class="debug-panel" hidden>
+      <summary>Debug del dispositivo</summary>
+      <div id="debugContent" class="debug-content">Cargando…</div>
+    </details>
+  </main>
+
+  <dialog id="installDialog" aria-labelledby="installDialogTitle">
+    <div class="modal-body">
+      <div class="modal-grabber" aria-hidden="true"></div>
+      <h2 id="installDialogTitle">Instalar la aplicación</h2>
+      <p id="installDialogIntro">Seguí estos pasos desde el navegador.</p>
+      <ol id="installSteps" class="install-steps"></ol>
+      <button id="closeInstallDialog" class="secondary-button" type="button">Entendido</button>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const APP_CONFIG = Object.freeze({
+      eventName: "Evento 2026",
+      shortName: "Evento",
+      oneSignalAppId: "f72f0f39-bdfb-4252-a101-9b6f40acf7a4",
+      debug: new URLSearchParams(location.search).get("debug") === "1"
+    });
+
+    const state = {
+      deferredInstallPrompt: null,
+      oneSignal: null,
+      oneSignalInitialized: false,
+      oneSignalError: null,
+      pwaRegistration: null,
+      pushState: "unknown"
+    };
+
+    const ui = {
+      browserView: document.querySelector("#browserView"),
+      installedView: document.querySelector("#installedView"),
+      installButton: document.querySelector("#installButton"),
+      installDialog: document.querySelector("#installDialog"),
+      installDialogTitle: document.querySelector("#installDialogTitle"),
+      installDialogIntro: document.querySelector("#installDialogIntro"),
+      installSteps: document.querySelector("#installSteps"),
+      closeInstallDialog: document.querySelector("#closeInstallDialog"),
+      notificationButton: document.querySelector("#notificationButton"),
+      pushStatus: document.querySelector("#pushStatus"),
+      pushStatusLabel: document.querySelector("#pushStatusLabel"),
+      pushHelp: document.querySelector("#pushHelp"),
+      debugPanel: document.querySelector("#debugPanel"),
+      debugContent: document.querySelector("#debugContent"),
+      toast: document.querySelector("#toast")
+    };
+
+    const log = (scope, ...args) => console.log(`[${scope}]`, ...args);
+    const warn = (scope, ...args) => console.warn(`[${scope}]`, ...args);
+    const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    const isAndroid = () => /Android/i.test(navigator.userAgent);
+
+    function getBasePath() {
+      return new URL(".", location.href).pathname;
+    }
+
+    function isRunningStandalone() {
+      const debugStandalone = APP_CONFIG.debug && new URLSearchParams(location.search).get("standalone") === "1";
+      return debugStandalone || window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+    }
+
+    function isOneSignalConfigured() {
+      return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(APP_CONFIG.oneSignalAppId);
+    }
+
+    function renderAppMode() {
+      const standalone = isRunningStandalone();
+      ui.browserView.hidden = standalone;
+      ui.installedView.hidden = !standalone;
+      log("PWA", standalone ? "Ejecutando en modo standalone" : "Ejecutando en navegador");
+      if (standalone) initializeOneSignal();
+      updateDebugPanel();
+    }
+
+    function showToast(message) {
+      ui.toast.textContent = message;
+      ui.toast.classList.add("is-visible");
+      clearTimeout(showToast.timeout);
+      showToast.timeout = setTimeout(() => ui.toast.classList.remove("is-visible"), 3500);
+    }
+
+    function openInstallInstructions(kind) {
+      const iosSteps = [
+        "Tocá el botón Compartir del navegador.",
+        "Elegí “Agregar a pantalla de inicio”.",
+        "Confirmá tocando “Agregar”.",
+        "Abrí la aplicación desde el nuevo icono."
+      ];
+      const genericSteps = [
+        "Abrí el menú principal del navegador.",
+        "Buscá “Instalar app” o “Agregar a pantalla principal”.",
+        "Confirmá la instalación.",
+        "Abrí la aplicación desde el nuevo icono."
+      ];
+      const ios = kind === "ios";
+      ui.installDialogTitle.textContent = ios ? "Instalar en iPhone" : "Instalar la aplicación";
+      ui.installDialogIntro.textContent = ios ? "Apple requiere una instalación manual. Es rápido:" : "La opción puede cambiar de nombre según el navegador:";
+      ui.installSteps.replaceChildren(...(ios ? iosSteps : genericSteps).map(text => {
+        const item = document.createElement("li");
+        item.textContent = text;
+        return item;
+      }));
+      ui.installDialog.showModal();
+    }
+
+    async function handleInstallClick() {
+      log("INSTALL", "Botón de instalación activado");
+      if (isIOS()) {
+        openInstallInstructions("ios");
+        return;
+      }
+      if (!state.deferredInstallPrompt) {
+        openInstallInstructions("generic");
+        return;
+      }
+      try {
+        state.deferredInstallPrompt.prompt();
+        const choice = await state.deferredInstallPrompt.userChoice;
+        log("INSTALL", "Resultado del prompt:", choice.outcome);
+        state.deferredInstallPrompt = null;
+        if (choice.outcome === "accepted") showToast("Instalación aceptada. Abrí la app desde su icono.");
+      } catch (error) {
+        warn("INSTALL", "No se pudo abrir el prompt", error);
+        openInstallInstructions("generic");
+      }
+      updateDebugPanel();
+    }
+
+    async function registerPwaServiceWorker() {
+      if (!("serviceWorker" in navigator)) {
+        warn("PWA", "Service Worker no soportado");
+        updateDebugPanel();
+        return;
+      }
+      try {
+        state.pwaRegistration = await navigator.serviceWorker.register("./pwa-sw.js", { scope: "./" });
+        log("PWA", "Service Worker registrado", state.pwaRegistration.scope);
+      } catch (error) {
+        warn("PWA", "Falló el registro del Service Worker", error);
+        showToast("No se pudo preparar la instalación. Revisá la conexión.");
+      }
+      updateDebugPanel();
+    }
+
+    function setPushState(nextState, message, help) {
+      state.pushState = nextState;
+      ui.pushStatus.dataset.state = nextState;
+      ui.pushStatusLabel.textContent = message;
+      ui.pushHelp.textContent = help;
+
+      const button = ui.notificationButton;
+      button.hidden = nextState === "granted";
+      button.disabled = ["requesting", "unsupported"].includes(nextState) || !state.oneSignalInitialized;
+      button.textContent = nextState === "requesting" ? "Solicitando permiso…" : "Activar notificaciones";
+      updateDebugPanel();
+    }
+
+    function refreshPushState() {
+      if (!("Notification" in window) || !("serviceWorker" in navigator) || !("PushManager" in window)) {
+        setPushState("unsupported", "No disponible", "Este navegador o dispositivo no admite notificaciones web.");
+        return;
+      }
+
+      if (Notification.permission === "denied") {
+        setPushState("denied", "Notificaciones bloqueadas", "Habilitalas desde la configuración del dispositivo o navegador.");
+        return;
+      }
+
+      if (!isOneSignalConfigured()) {
+        setPushState("error", "Configuración pendiente", "Falta agregar el App ID de OneSignal antes de hacer la prueba.");
+        return;
+      }
+
+      if (!state.oneSignalInitialized || !state.oneSignal) {
+        setPushState("unknown", "Preparando notificaciones…", "Estamos comprobando la compatibilidad del dispositivo.");
+        return;
+      }
+
+      const optedIn = Boolean(state.oneSignal.User.PushSubscription.optedIn);
+      if (Notification.permission === "granted" && optedIn) {
+        setPushState("granted", "Notificaciones activadas ✓", "El dispositivo ya está listo para recibir alertas del evento.");
+      } else {
+        setPushState("default", "Notificaciones desactivadas", "Activá las alertas para enterarte antes de que comience cada charla.");
+      }
+    }
+
+    async function initializeOneSignal() {
+      if (state.oneSignalInitialized || state.oneSignal || state.oneSignalError) return;
+      if (!isOneSignalConfigured()) {
+        warn("ONESIGNAL", "Reemplazá APP_CONFIG.oneSignalAppId para inicializar el SDK");
+        refreshPushState();
+        return;
+      }
+
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      window.OneSignalDeferred.push(async function (OneSignal) {
+        try {
+          const basePath = getBasePath();
+          const workerPath = `${basePath.replace(/^\//, "")}push/onesignal/OneSignalSDKWorker.js`;
+          const workerScope = `${basePath}push/onesignal/`;
+          log("ONESIGNAL", "Inicializando", { workerPath, workerScope });
+          await OneSignal.init({
+            appId: APP_CONFIG.oneSignalAppId,
+            serviceWorkerPath: workerPath,
+            serviceWorkerParam: { scope: workerScope },
+            allowLocalhostAsSecureOrigin: true
+          });
+          state.oneSignal = OneSignal;
+          state.oneSignalInitialized = true;
+
+          OneSignal.Notifications.addEventListener("permissionChange", permission => {
+            log("PUSH", "Cambio de permiso", permission);
+            refreshPushState();
+          });
+          OneSignal.User.PushSubscription.addEventListener("change", event => {
+            log("PUSH", "Cambio de suscripción", event.current);
+            refreshPushState();
+          });
+          OneSignal.Notifications.addEventListener("click", event => log("PUSH", "Notificación abierta", event));
+          log("ONESIGNAL", "SDK inicializado correctamente");
+          refreshPushState();
+        } catch (error) {
+          state.oneSignalError = error;
+          warn("ONESIGNAL", "Falló la inicialización", error);
+          setPushState("error", "No pudimos preparar las alertas", "Revisá la conexión o abrí el panel de debug para más información.");
+        }
+      });
+    }
+
+    async function requestNotifications() {
+      if (!state.oneSignalInitialized || !state.oneSignal) {
+        refreshPushState();
+        return;
+      }
+      if (Notification.permission === "denied") {
+        refreshPushState();
+        return;
+      }
+
+      setPushState("requesting", "Esperando tu confirmación…", "Aceptá el permiso en el mensaje del sistema.");
+      try {
+        if (!state.oneSignal.Notifications.isPushSupported()) {
+          setPushState("unsupported", "No disponible", "Este navegador no admite Web Push.");
+          return;
+        }
+        await state.oneSignal.Notifications.requestPermission();
+        if (Notification.permission === "granted" && !state.oneSignal.User.PushSubscription.optedIn) {
+          await state.oneSignal.User.PushSubscription.optIn();
+        }
+        log("PUSH", "Solicitud terminada", Notification.permission);
+        refreshPushState();
+      } catch (error) {
+        warn("PUSH", "Falló la solicitud de permiso", error);
+        setPushState("error", "No se pudo activar", "Volvé a intentarlo o revisá los permisos del dispositivo.");
+      }
+    }
+
+    async function updateDebugPanel() {
+      if (!APP_CONFIG.debug) return;
+      ui.debugPanel.hidden = false;
+      let registrations = [];
+      if ("serviceWorker" in navigator) {
+        try { registrations = await navigator.serviceWorker.getRegistrations(); } catch (error) { warn("DEBUG", error); }
+      }
+      const subscription = state.oneSignal?.User?.PushSubscription;
+      const params = Object.fromEntries(new URLSearchParams(location.search));
+      const debug = {
+        Platform: {
+          userAgent: navigator.userAgent,
+          iOS: isIOS(),
+          Android: isAndroid()
+        },
+        PWA: {
+          debugStandaloneSimulation: APP_CONFIG.debug && new URLSearchParams(location.search).get("standalone") === "1",
+          displayModeStandalone: window.matchMedia("(display-mode: standalone)").matches,
+          navigatorStandalone: navigator.standalone ?? "n/a",
+          beforeInstallPromptAvailable: Boolean(state.deferredInstallPrompt)
+        },
+        Browser: {
+          serviceWorkerSupport: "serviceWorker" in navigator,
+          notificationApiSupport: "Notification" in window,
+          pushApiSupport: "PushManager" in window
+        },
+        Notifications: {
+          uiState: state.pushState,
+          permission: "Notification" in window ? Notification.permission : "unsupported",
+          oneSignalConfigured: isOneSignalConfigured(),
+          oneSignalInitialized: state.oneSignalInitialized,
+          subscriptionId: subscription?.id ?? null,
+          optedIn: subscription?.optedIn ?? null,
+          error: state.oneSignalError?.message ?? null
+        },
+        ServiceWorkers: registrations.map(reg => ({
+          scope: reg.scope,
+          active: reg.active?.scriptURL ?? null,
+          state: reg.active?.state ?? null
+        })),
+        URL: {
+          current: location.href,
+          basePath: getBasePath(),
+          query: params,
+          hash: location.hash
+        }
+      };
+      ui.debugContent.textContent = JSON.stringify(debug, null, 2);
+    }
+
+    document.title = APP_CONFIG.eventName;
+    document.querySelector("#brandName").textContent = APP_CONFIG.shortName;
+    ui.installButton.addEventListener("click", handleInstallClick);
+    ui.notificationButton.addEventListener("click", requestNotifications);
+    ui.closeInstallDialog.addEventListener("click", () => ui.installDialog.close());
+    ui.installDialog.addEventListener("click", event => {
+      if (event.target === ui.installDialog) ui.installDialog.close();
+    });
+
+    window.addEventListener("beforeinstallprompt", event => {
+      event.preventDefault();
+      state.deferredInstallPrompt = event;
+      log("INSTALL", "beforeinstallprompt disponible");
+      updateDebugPanel();
+    });
+
+    window.addEventListener("appinstalled", () => {
+      state.deferredInstallPrompt = null;
+      log("INSTALL", "PWA instalada");
+      showToast("Aplicación instalada. Abrila desde su icono.");
+      updateDebugPanel();
+    });
+
+    window.matchMedia("(display-mode: standalone)").addEventListener?.("change", renderAppMode);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        renderAppMode();
+        refreshPushState();
+      }
+    });
+
+    renderAppMode();
+    registerPwaServiceWorker();
+    if (isRunningStandalone()) refreshPushState();
+  </script>
+</body>
+</html>
